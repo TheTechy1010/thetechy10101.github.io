@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Date test</title>
+  </head>
+
+  <body>
+
+
+    <table>
+      <tr>
+        <input type='text' id='note' >
+      </tr>
+      <tr>
+        <button onclick='insertData()' id='submit'>Submit</button><br>
+      </tr>
+      <tr>
+        <select class="myselect" id="myselect">
+          <option value="SWAP_1">SWAP_1</option>
+          <option value="SWAP_2">SWAP_2</option>
+          <option value="SWAP_3" selected>SWAP_3</option>
+          <option value="SWAP_4">SWAP_4</option>
+          <option value="SWAP_5">SWAP_5</option>
+        </select>
+      </tr>
+      <tr>
+        <td>
+          <ul id='list'>Date</ul>
+        </td>
+        <td>
+          <ul id='list2'>Time</ul>
+        </td>
+        <td>
+          <ul id='swaplist'>swaplist</ul>
+        </td>
+      </tr>
+    </table>
+
+    <script type="text/javascript">
+      var newdate = new Date();
+      var date = newdate.getDate();
+      var month = newdate.getMonth();
+      var year = newdate.getFullYear();
+      var hours = newdate.getHours();
+      var miniutes = newdate.getMinutes();
+      var dateString = date +" - "+(month+1)+" - "+year +"</br>";
+      var timeString = hours +" : " + miniutes;
+      document.write(timeString);
+      document.write(dateString);
+      document.write(year +"</br>")
+      //document.write(time);
+
+      var db = window.openDatabase("tutorialdb", "1.0", "tutorial database", 1000000); //will create database tutorialdb or open it
+
+      function populateDB(tx){
+          tx.executeSql('CREATE TABLE IF NOT EXISTS notes (id INTEGER PRIMARY KEY AUTOINCREMENT,note TEXT NOT NULL,time TEXT NOT NULL,swap TEXT NOT NULL)');
+      }
+      function fetchData(){
+          db.transaction(function(tx){
+
+      tx.executeSql("select * from notes",[],function(tx1,result){
+        var len = result.rows.length;
+
+        for (var i=0; i<len; i++){
+                      var note = result.rows.item(i).note;
+
+                      // Add list item
+                      var ul = document.getElementById("list");
+                      var li = document.createElement("li");
+                      li.appendChild(document.createTextNode(note));
+                      ul.appendChild(li);
+
+                      //add list2 item
+                      var ul2 = document.getElementById("list2");
+                      var li2 = document.createElement("li");
+                      li2.appendChild(document.createTextNode());
+                      ul2.appendChild(li2);
+
+                      //adding list3
+                      var ul3 = document.getElementById("swaplist");
+                      var li3 = document.createElement("li");
+                      li3.appendChild(document.createTextNode());
+                      ul3.appendChild(li3);
+                  }
+
+      },errorCB);
+    }, errorCB, successCB);
+      }
+
+      function insertData(){
+
+          // Insert record
+          db.transaction(insertNote, errorCB, successCB);
+      }
+
+      function insertNote(tx){
+          //var note = document.getElementById('note').value;
+          var newdate = new Date();
+          var date = newdate.getDate();
+          var month = newdate.getMonth();
+          var year = newdate.getFullYear();
+          var hours = newdate.getHours();
+          var miniutes = newdate.getMinutes();
+          var dateString = date +" - "+(month+1)+" - "+year;
+          var timeString = hours +" : " + miniutes;
+          var swap = document.getElementById("myselect").value;
+          // Insert query
+          tx.executeSql("INSERT INTO notes(note) VALUES (?)",[dateString]);
+          tx.executeSql("INSERT INTO notes(time) VALUES (?)",[timeString]);
+          tx.executeSql("INSERT INTO notes(swap) VALUES (?)",[swap])
+
+          // Append new list item
+          var ul = document.getElementById("list2");
+          var li = document.createElement("li");
+          li.appendChild(document.createTextNode(dateString));
+          ul.appendChild(li);
+
+          var ul2 = document.getElementById("list");
+          var li2 = document.createElement("li");
+          li2.appendChild(document.createTextNode(timeString));
+          ul2.appendChild(li2);
+
+          //adding swaplist
+          var ul3 = document.getElementById("swaplist");
+          var li3 = document.createElement("li");
+          li3.appendChild(document.createTextNode(swap));
+          ul3.appendChild(li3);
+      }
+
+      function errorCB(err) {
+          alert("Error processing SQL: "+err.code);
+      }
+
+      function successCB() {
+          alert("success!");
+      }
+
+    </script>
+  </body>
+</html>

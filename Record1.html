@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html>
+
+
+
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<head>
+
+<title>M.SC Project V1.101</title>
+
+<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.css'>
+<link rel="stylesheet" type="text/css" href="popup.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
+<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js'></script>
+<script type="text/javascript" src="jsanimation.js"></script>
+
+<link href="style.css" rel="stylesheet" type="text/css">
+<link href="mystyle.css" rel="stylesheet" type="text/css">
+<link href="animation.css" rel="stylesheet" type="text/css">
+<link href="itemcss.css" rel="stylesheet" type="text/css">
+
+<meta name="google-site-verification" content="ruPP7Z-1iMcsvrbicR-wNJ79VHatSn1JepKnsDgSDlw" />
+
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+
+</head>
+<header>
+  <div class="topnav">
+
+
+    <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+    &#9776;
+    </a>
+    <a href="#home" class="active">Record Page</a>
+    <div id="myLinks">
+      <a href="index.html">Home</a>
+      <a href="Record1.html">My Records</a>
+      <a href="#contact">Instructions</a>
+      <a href="#contact">About</a>
+      <a href="#about">Show More</a>
+    </div>
+
+  </div>
+  <h1>Estimating Nitrogen Concentration</h1>
+
+
+  <h2>Recored N Concentrations</h2>
+</header>
+<body>
+
+
+<div id="target">
+  <table id="records">
+    <tr>
+    <th>Time</th>
+    <th>Date</th>
+    <th>Swap No</th>
+  </tr>
+    <tr>
+
+    </tr>
+    <tr>
+      <select class="styled-select green rounded" id="myselect">
+        <option value="SWAP_1">SWAP_1</option>
+        <option value="SWAP_2">SWAP_2</option>
+        <option value="SWAP_3" selected>SWAP_3</option>
+        <option value="SWAP_4">SWAP_4</option>
+        <option value="SWAP_5">SWAP_5</option>
+      </select>
+      <button class="button" onclick='insertData()' id='submit'>Submit</button><br>
+    </tr>
+    <tr>
+
+    </tr>
+    <tr>
+      <td>
+        <ul id='list'></ul>
+      </td>
+      <td>
+        <ul id='list2'></ul>
+      </td>
+      <td>
+        <ul id='swaplist'></ul>
+      </td>
+    </tr>
+  </table>
+
+  <script type="text/javascript">
+    //<input type='text' id='note' >
+    var newdate = new Date();
+    var date = newdate.getDate();
+    var month = newdate.getMonth();
+    var year = newdate.getFullYear();
+    var hours = newdate.getHours();
+    var miniutes = newdate.getMinutes();
+    var dateString = date +" - "+(month+1)+" - "+year +"</br>";
+    var timeString = hours +" : " + miniutes;
+    //document.write(timeString);
+    //document.write(dateString);
+    //document.write(year +"</br>")
+    //document.write(time);
+
+    var db = window.openDatabase("tutorialdb", "1.0", "tutorial database", 1000000); //will create database tutorialdb or open it
+
+    function populateDB(tx){
+        tx.executeSql('CREATE TABLE IF NOT EXISTS notes (id INTEGER PRIMARY KEY AUTOINCREMENT,note TEXT NOT NULL,time TEXT NOT NULL,swap TEXT NOT NULL)');
+    }
+    function fetchData(){
+        db.transaction(function(tx){
+
+    tx.executeSql("select * from notes",[],function(tx1,result){
+      var len = result.rows.length;
+
+      for (var i=0; i<len; i++){
+                    var note = result.rows.item(i).note;
+
+                    // Add list item
+                    var ul = document.getElementById("list");
+                    var li = document.createElement("li");
+                    li.appendChild(document.createTextNode(note));
+                    ul.appendChild(li);
+
+                    //add list2 item
+                    var ul2 = document.getElementById("list2");
+                    var li2 = document.createElement("li");
+                    li2.appendChild(document.createTextNode());
+                    ul2.appendChild(li2);
+
+                    //adding list3
+                    var ul3 = document.getElementById("swaplist");
+                    var li3 = document.createElement("li");
+                    li3.appendChild(document.createTextNode());
+                    ul3.appendChild(li3);
+                }
+
+    },errorCB);
+  }, errorCB, successCB);
+    }
+
+    function insertData(){
+
+        // Insert record
+        db.transaction(insertNote, errorCB, successCB);
+    }
+
+    function insertNote(tx){
+        //var note = document.getElementById('note').value;
+        var newdate = new Date();
+        var date = newdate.getDate();
+        var month = newdate.getMonth();
+        var year = newdate.getFullYear();
+        var hours = newdate.getHours();
+        var miniutes = newdate.getMinutes();
+        var dateString = date +" - "+(month+1)+" - "+year;
+        var timeString = hours +" : " + miniutes;
+        var swap = document.getElementById("myselect").value;
+        // Insert query
+        tx.executeSql("INSERT INTO notes(note) VALUES (?)",[dateString]);
+        tx.executeSql("INSERT INTO notes(time) VALUES (?)",[timeString]);
+        tx.executeSql("INSERT INTO notes(swap) VALUES (?)",[swap])
+
+        // Append new list item
+        var ul = document.getElementById("list2");
+        var li = document.createElement("li");
+        li.appendChild(document.createTextNode(dateString));
+        ul.appendChild(li);
+
+        var ul2 = document.getElementById("list");
+        var li2 = document.createElement("li");
+        li2.appendChild(document.createTextNode(timeString));
+        ul2.appendChild(li2);
+
+        //adding swaplist
+        var ul3 = document.getElementById("swaplist");
+        var li3 = document.createElement("li");
+        li3.appendChild(document.createTextNode(swap));
+        ul3.appendChild(li3);
+    }
+
+    function errorCB(err) {
+      alert("Record Added!!!");
+        //alert("Error processing SQL: "+err.code);
+    }
+
+    function successCB() {
+        alert("success!");
+    }
+
+  </script>
+
+
+<div class="button_area">
+
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+<script src="average-color2.js"></script>
+<script src="myscript.js"></script>
+<footer>
+
+<h4>Copyright &copy 2019 PREETish</h4>
+
+
+</footer>
+</body>
+
+
+
+</html>
